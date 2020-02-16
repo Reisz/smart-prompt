@@ -3,6 +3,7 @@ Modular collection of bash prompt functionality
 
 Supports the following features
 - Hostname-based recoloring
+- Root recoloring
 - Display exit status of previous command
 
 ## Character set
