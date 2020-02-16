@@ -1,15 +1,17 @@
 #!/bin/bash
 smart_prompt_exit_status() {
-    printf '\001\033[s\033[1A\033[%sC\002' "$((COLUMNS - 1))"
+    local _columns=$((COLUMNS - 1))
+    printf '\n\001\033[%sC\002' "$_columns"
 
     # Can't check status directly since we're not calling ourselves
     # shellcheck disable=SC2181
     if [[ $? == 0 ]]; then
-        printf '\001\033[38;5;46;1m\002✔\001\033[0m\002'
+        smart_prompt_colored '38;5;46;1' '✔'
     else
-        printf '\001\033[38;5;196;1m\002✘\001\033[0m\002'
+        smart_prompt_colored '38;5;196;1' '✘'
     fi
-    printf '\001\033[u\002'
+
+    printf '\001\033[%sD\002' "$_columns"
 }
 
 # Enable exit status display after first prompt
