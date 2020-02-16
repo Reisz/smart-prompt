@@ -4,6 +4,7 @@ Modular collection of bash prompt functionality
 Supports the following features
 - Hostname-based recoloring
 - Root recoloring
+- Count stopped & backgorund jobs
 - Display exit status of previous command
 
 ## Character set
