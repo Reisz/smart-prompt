@@ -1,14 +1,16 @@
 #!/bin/bash
 smart_prompt_exit_status() {
+    # Can't check status directly since we're not calling ourselves
+    # shellcheck disable=SC218
+    local _status=$?
+
     local _columns=$((COLUMNS - 1))
     printf '\n\001\033[%sC\002' "$_columns"
 
-    # Can't check status directly since we're not calling ourselves
-    # shellcheck disable=SC2181
-    if [[ $? == 0 ]]; then
-        smart_prompt_colored '38;5;46;1' '✔'
+    if [[ "$_status" == 0 ]]; then
+        smart_prompt_colored '38;5;46;1' "$(smart_prompt_swap ✔ o)"
     else
-        smart_prompt_colored '38;5;196;1' '✘'
+        smart_prompt_colored '38;5;196;1' "$(smart_prompt_swap ✘ x)"
     fi
 
     printf '\001\033[%sD\002' "$_columns"
