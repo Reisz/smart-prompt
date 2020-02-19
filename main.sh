@@ -1,14 +1,12 @@
 #!/bin/bash
 _smart_prompt_dir=$(dirname "${BASH_SOURCE[0]}")
 
-# shellcheck source=color.sh
-source "$_smart_prompt_dir/color.sh"
+# shellcheck source=util.sh
+source "$_smart_prompt_dir/util.sh"
 # shellcheck source=exit_status.sh
 source "$_smart_prompt_dir/exit_status.sh"
 # shellcheck source=jobs.sh
 source "$_smart_prompt_dir/jobs.sh"
-# shellcheck source=swap.sh
-source "$_smart_prompt_dir/swap.sh"
 
 PS1=''
 

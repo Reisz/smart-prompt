@@ -16,3 +16,11 @@ smart_prompt_root_color() {
         printf '%s' "$1"
     fi
 }
+
+smart_prompt_swap() {
+    if [ "$DISPLAY" ]; then
+        printf '%s' "$1"
+    else
+        printf '%s' "$2"
+    fi
+}
