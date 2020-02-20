@@ -4,8 +4,7 @@ smart_prompt_exit_status() {
     # shellcheck disable=SC218
     local _status=$?
 
-    local _columns=$((COLUMNS - 1))
-    printf '\n\001\033[%sC\002' "$_columns"
+    printf '\n\001\033[%sC\002' "$COLUMNS"
 
     if [[ "$_status" == 0 ]]; then
         smart_prompt_colored '38;5;46;1' "$(smart_prompt_swap ✔ o)"
@@ -13,7 +12,7 @@ smart_prompt_exit_status() {
         smart_prompt_colored '38;5;196;1' "$(smart_prompt_swap ✘ x)"
     fi
 
-    printf '\001\033[%sD\002' "$_columns"
+    printf '\001\033[%sD\002' "$COLUMNS"
 }
 
 # Enable exit status display after first prompt
