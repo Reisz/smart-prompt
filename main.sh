@@ -1,25 +1,26 @@
 #!/bin/bash
 _smart_prompt_dir=$(dirname "${BASH_SOURCE[0]}")
 
-# shellcheck source=util.sh
-source "$_smart_prompt_dir/util.sh"
 # shellcheck source=exit_status.sh
 source "$_smart_prompt_dir/exit_status.sh"
 # shellcheck source=jobs.sh
 source "$_smart_prompt_dir/jobs.sh"
-
-PS1=''
+# shellcheck source=screen.sh
+source "$_smart_prompt_dir/screen.sh"
+# shellcheck source=util.sh
+source "$_smart_prompt_dir/util.sh"
 
 # Exit status
 smart_prompt_enable_exit_status
 
-# Host name
+PS1=''
+# [user@host]_
 PS1+="[$(smart_prompt_colored "38;5;$(smart_prompt_hostname_color);1" '\u@\h')] "
-
-# Jobs
+# (Jobs ►0 ■0)_
 PS1+='$(smart_prompt_jobs)'
-
-# Working directory
-PS1+="$(smart_prompt_colored "38;5;$(smart_prompt_root_color "75" "1");1" '\w') "
-
+# (Screen ♦ A0 D0)_
+PS1+='$(smart_prompt_screen)'
+# ~/current_directory
+PS1+="$(smart_prompt_colored "38;5;$(smart_prompt_root_color "75" "1");1" '\w')"
+# Full line prompt
 PS1+='\n\$ '

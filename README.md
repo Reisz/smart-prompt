@@ -5,6 +5,7 @@ Supports the following features
 - Hostname-based recoloring
 - Root recoloring
 - Count stopped & background jobs
+- Display status of screens
 - Display exit status of previous command
 
 ## Character set

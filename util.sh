@@ -1,5 +1,4 @@
 #!/bin/bash
-
 smart_prompt_colored() {
     printf '\001\033[%sm\002%s\001\033[m\022' "$1" "$2"
 }
