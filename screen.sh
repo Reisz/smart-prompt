@@ -7,12 +7,12 @@ smart_prompt_screen() {
         _detached=$(echo "$_screen_ls" | grep -c Detached)
         _attached=$(echo "$_screen_ls" | grep -c Attached)
 
-        if [ $((_attached + _detached)) -gt 0 ] || [ $STY ]; then
+        if [ $((_attached + _detached)) -gt 0 ] || [ "$STY" ]; then
             printf '('
             smart_prompt_colored '38;5;98;1' 'Screen'
 
             # In screen?
-            if [ $STY ]; then
+            if [ "$STY" ]; then
                 smart_prompt_colored '38;5;111;1' ' ♦'
 
                 # Dont count currently running screen

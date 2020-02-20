@@ -6,6 +6,13 @@ Supports the following features
 - Root recoloring
 - Count stopped & background jobs
 - Display status of screens
+- Git Information
+  - Current branch
+  - Current commit
+  - Uncomitted files
+  - Stash
+  - Commits to push / pull
+  - Commits to merge
 - Display exit status of previous command
 
 ## Character set
