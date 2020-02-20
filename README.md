@@ -9,4 +9,4 @@ Supports the following features
 - Display exit status of previous command
 
 ## Character set
-Symbols used in the prompt should be part of [CP437](https://en.wikipedia.org/wiki/Code_page_437). If `$DISPLAY` is set the full range of Unicode characters and symbols can be used.
+Symbols used in the prompt should be part of [CP437](https://en.wikipedia.org/wiki/Code_page_437). The command `smart_prompt_swap` can be used to substitute them for more fitting Unicode symbols if the current terminal supports Unicode.
