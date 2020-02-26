@@ -12,9 +12,17 @@ smart_prompt_git_update() {
 
     _current_update=$(date +%s)
     if [ $((_current_update - _last_update)) -gt "$1" ]; then
-        git remote update >/dev/null 2>&1 &
-        smart_prompt_swap ' ↺' ' ↕'
+        touch "$_basedir/.git/.smart_prompt_updating"
+        {
+            git remote update
+            rm "$_basedir/.git/.smart_prompt_updating"
+        } >/dev/null 2>&1 &
         echo "$_current_update" > "$_basedir/.git/.smart_prompt_update_timer"
+    fi
+
+
+    if [ -f "$_basedir/.git/.smart_prompt_updating" ]; then
+        smart_prompt_swap ' ↺' ' ↕'
     fi
 }
 
@@ -45,6 +53,7 @@ smart_prompt_git() {
             smart_prompt_colored "38;5;$_branch_col;1" " $_branch"
         fi
 
+
         # Current commit
         local _commit
         _commit=$(git show --format=%h -q 2>/dev/null | head -1)
@@ -52,6 +61,7 @@ smart_prompt_git() {
             printf '@'
             smart_prompt_colored '38;5;242;1' "$_commit"
         fi
+
 
         # Uncomitted files
         local _status _staged _unstaged _untracked
@@ -98,6 +108,7 @@ smart_prompt_git() {
                 fi
             fi
         fi
+
 
         # Other remotes
         local _origin
