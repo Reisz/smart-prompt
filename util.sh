@@ -1,6 +1,29 @@
 #!/bin/bash
 smart_prompt_colored() {
-    printf '\001\033[%sm\002%s\001\033[m\022' "$1" "$2"
+    printf '\001\e[%sm\002%s\e\001[0m\002' "$1" "$2"
+}
+
+smart_prompt_title() {
+    case "$TERM" in
+        xterm*|rxvt*) printf '\001\e]0;%s\a\002' "$1";;
+    esac
+}
+
+smart_prompt_remote() {
+    local _remote
+    if [ -n "$SSH_CLIENT" ] || [ -n "$SSH_TTY" ]; then
+        _remote=1
+    else
+        case $(ps -o comm= -p $PPID) in
+            sshd|*/sshd) _remote=1;;
+        esac
+    fi
+
+    if [ "$_remote" ]; then
+        printf '%s' "$1"
+    else
+        printf '%s' "$2"
+    fi
 }
 
 smart_prompt_hostname_color() {
