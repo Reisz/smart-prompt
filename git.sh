@@ -112,7 +112,7 @@ smart_prompt_git() {
 
         # Other remotes
         local _origin
-        _origin=$(git rev-parse '@{u}')
+        _origin=$(git rev-parse '@{u}' 2>/dev/null)
         for _remote in $(git remote); do
             if [ "$(git rev-parse "refs/remotes/$_remote/$_branch")" != "$_origin" ]; then
                 _pull=$(git rev-list --count "@..refs/remotes/$_remote/$_branch")
