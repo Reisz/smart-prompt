@@ -27,7 +27,7 @@ smart_prompt_git_update() {
 }
 
 smart_prompt_git() {
-    if git show -s > /dev/null 2>&1; then
+    if [ -d .git ]; then
         printf '('
         smart_prompt_colored '38;5;160;1' 'Git'
 
@@ -45,6 +45,8 @@ smart_prompt_git() {
             _branch="<rebasing>"
         elif [[ "$_branch" = "(HEAD detached"* ]]; then
             _branch="<detached>"
+        elif [[ "$_branch" = "" ]]; then
+            _branch=$(git status | head -n 1 | colrm 1 10)
         else
             _branch_col=214  # regular branch color
         fi
@@ -112,17 +114,18 @@ smart_prompt_git() {
 
         # Other remotes
         local _origin
-        _origin=$(git rev-parse '@{u}' 2>/dev/null)
-        for _remote in $(git remote); do
-            if [ "$(git rev-parse "refs/remotes/$_remote/$_branch")" != "$_origin" ]; then
-                _pull=$(git rev-list --count "@..refs/remotes/$_remote/$_branch")
+        if _origin=$(git rev-parse '@{u}' 2>/dev/null); then
+            for _remote in $(git remote); do
+                if [ "$(git rev-parse "refs/remotes/$_remote/$_branch")" != "$_origin" ]; then
+                    _pull=$(git rev-list --count "@..refs/remotes/$_remote/$_branch")
 
-                if [ "$_pull" -gt 0 ]; then
-                    printf ' | '
-                    smart_prompt_colored '38;5;222;1' "$_remote ▼$_pull"
+                    if [ "$_pull" -gt 0 ]; then
+                        printf ' | '
+                        smart_prompt_colored '38;5;222;1' "$_remote ▼$_pull"
+                    fi
                 fi
-            fi
-        done
+            done
+        fi
 
         printf ') '
     fi
