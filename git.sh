@@ -27,7 +27,7 @@ smart_prompt_git_update() {
 }
 
 smart_prompt_git() {
-    if [ -d .git ]; then
+    if git status -s >/dev/null 2>&1; then
         printf '('
         smart_prompt_colored '38;5;160;1' 'Git'
 
