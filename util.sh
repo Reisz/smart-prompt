@@ -28,7 +28,7 @@ smart_prompt_remote() {
 
 smart_prompt_hostname_color() {
     # default color is calculated from hash between 17 and 230 inclusive
-    printf '%s' "$(($(hostname | sum | grep -o "[1-9][0-9][0-9]*") % 213 + 17))"
+    printf '%s' "$(($(echo "$HOSTNAME" | sum | grep -o "[1-9][0-9][0-9]*") % 213 + 17))"
 }
 
 smart_prompt_root_color() {
