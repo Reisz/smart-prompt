@@ -39,7 +39,7 @@ smart_prompt_git() {
         local _branch _branch_col
         _branch=$(git branch | grep "^\\*" | colrm 1 2)
         _branch_col=165  # special case color
-        if [ "$_branch" = "master" ]; then
+        if [ "$_branch" = "master" ] || [ "$_branch" = "main" ]; then
             _branch_col=26  # master branch color
         elif [[ "$_branch" = "(no branch, rebasing"* ]]; then
             _branch="<rebasing>"
