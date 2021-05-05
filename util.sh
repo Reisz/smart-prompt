@@ -11,12 +11,8 @@ smart_prompt_title() {
 
 smart_prompt_remote() {
     local _remote
-    if [ -n "$SSH_CLIENT" ] || [ -n "$SSH_TTY" ]; then
+    if [ -n "$SSH_CLIENT" ] || [ -n "$SSH_CONNECTION" ] || [ -n "$SSH_TTY" ]; then
         _remote=1
-    else
-        case $(ps -o comm= -p $PPID) in
-            sshd|*/sshd) _remote=1;;
-        esac
     fi
 
     if [ "$_remote" ]; then
