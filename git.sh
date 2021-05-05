@@ -37,7 +37,7 @@ smart_prompt_git() {
 
         # Determine current branch / HEAD status
         local _branch _branch_col
-        _branch=$(git branch | grep "^\\*" | colrm 1 2)
+        _branch="$(git branch | grep "^\\*" | cut -c 3-)"
         _branch_col=165  # special case color
         if [ "$_branch" = "master" ] || [ "$_branch" = "main" ]; then
             _branch_col=26  # master branch color
@@ -46,7 +46,7 @@ smart_prompt_git() {
         elif [[ "$_branch" = "(HEAD detached"* ]]; then
             _branch="<detached>"
         elif [[ "$_branch" = "" ]]; then
-            _branch=$(git status | head -n 1 | colrm 1 10)
+            _branch=$(git status | head -n 1 | cut -c 11-)
         else
             _branch_col=214  # regular branch color
         fi
