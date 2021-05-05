@@ -29,4 +29,4 @@ PS1+="$(smart_prompt_colored "38;5;$(smart_prompt_root_color "75" "1");1" '\w') 
 # (Git branch@revision ↔0 ○0 ?0 | ≡ 0 | ▲0 ▼0 | remote ▼0)_
 PS1+='$(smart_prompt_git 600)'
 # Empty line for prompt
-PS1+='\n\$ '
+PS1+='\012\$ '
