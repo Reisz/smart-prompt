@@ -27,6 +27,6 @@ PS1+='$(smart_prompt_screen)'
 # ~/current/directory_
 PS1+="$(smart_prompt_colored "38;5;$(smart_prompt_root_color "75" "1");1" '\w') "
 # (Git branch@revision ↔0 ○0 ?0 | ≡ 0 | ▲0 ▼0 | remote ▼0)_
-PS1+='$(smart_prompt_git 600)'
+PS1+='$($_smart_prompt_dir/git-prompt/target/release/git-prompt)$(smart_prompt_git 600)'
 # Empty line for prompt
 PS1+='\012\$ '

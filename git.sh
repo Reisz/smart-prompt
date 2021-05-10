@@ -28,69 +28,8 @@ smart_prompt_git_update() {
 
 smart_prompt_git() {
     if git status -s >/dev/null 2>&1; then
-        printf '('
-        smart_prompt_colored '38;5;160;1' 'Git'
-
         # Manage timeout to update remotes, prints a symbol when updating
         smart_prompt_git_update "$1"
-
-
-        # Determine current branch / HEAD status
-        local _branch _branch_col
-        _branch="$(git branch | grep "^\\*" | cut -c 3-)"
-        _branch_col=165  # special case color
-        if [ "$_branch" = "master" ] || [ "$_branch" = "main" ]; then
-            _branch_col=26  # master branch color
-        elif [[ "$_branch" = "(no branch, rebasing"* ]]; then
-            _branch="<rebasing>"
-        elif [[ "$_branch" = "(HEAD detached"* ]]; then
-            _branch="<detached>"
-        elif [[ "$_branch" = "" ]]; then
-            _branch=$(git status | head -n 1 | cut -c 11-)
-        else
-            _branch_col=214  # regular branch color
-        fi
-
-        if [ "$_branch" ]; then
-            smart_prompt_colored "38;5;$_branch_col;1" " $_branch"
-        fi
-
-
-        # Current commit
-        local _commit
-        _commit=$(git show --format=%h -q 2>/dev/null | head -1)
-        if [[ -n $_commit ]]; then
-            printf '@'
-            smart_prompt_colored '38;5;242;1' "$_commit"
-        fi
-
-
-        # Uncomitted files
-        local _status _staged _unstaged _untracked
-        _status=$(git status --porcelain)
-        _staged=$(echo "$_status" | grep -c "^. ")
-        _unstaged=$(echo "$_status" | grep -c "^[^?][^ ]")
-        _untracked=$(echo "$_status" | grep -c "^??")
-        # print
-        if [ "$_staged" -gt 0 ]; then
-            smart_prompt_colored '38;5;34;1' " ↔$_staged"
-        fi
-        if [ "$_unstaged" -gt 0 ]; then
-            smart_prompt_colored '38;5;220;1' " ○$_unstaged"
-        fi
-        if [ "$_untracked" -gt 0 ]; then
-            smart_prompt_colored '38;5;196;1' " ?$_untracked"
-        fi
-
-
-        # Stash
-        local _stash
-        _stash=$(git stash list | wc -l)
-        if [ "$_stash" -gt 0 ]; then
-            printf ' | '
-            smart_prompt_colored '38;5;63;1' "≡ $_stash"
-        fi
-
 
         # Main remotes
         local _push _pull
@@ -113,7 +52,8 @@ smart_prompt_git() {
 
 
         # Other remotes
-        local _origin
+        local _origin _branch
+        _branch="$(git branch | grep "^\\*" | cut -c 3-)"
         if _origin=$(git rev-parse '@{u}' 2>/dev/null); then
             for _remote in $(git remote); do
                 if [ "$(git rev-parse "refs/remotes/$_remote/$_branch")" != "$_origin" ]; then
