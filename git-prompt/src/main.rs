@@ -1,7 +1,7 @@
 use std::fmt::{self, Display};
 
 use ansi_term::{Color::Fixed, Style};
-use git2::{Reference, Repository, Statuses};
+use git2::{BranchType, Reference, Repository, Statuses};
 
 fn branch<'a>(head: &'a Reference) -> impl Display + 'a {
     if head.is_branch() {
@@ -107,18 +107,79 @@ fn stash_height(repository: &mut Repository) -> StashHeight {
     StashHeight(height)
 }
 
+#[derive(Debug, Default)]
+struct RemoteDivergence {
+    push_count: usize,
+    pull_count: usize,
+}
+
+impl Display for RemoteDivergence {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let style = Fixed(220).bold();
+
+        let prefix = style.prefix();
+        let suffix = style.suffix();
+
+        if self.push_count > 0 || self.pull_count > 0 {
+            write!(f, " |")?;
+        }
+
+        if self.push_count > 0 {
+            write!(f, " {}▲{}{}", prefix, self.push_count, suffix)?;
+        }
+
+        if self.pull_count > 0 {
+            write!(f, " {}▼{}{}", prefix, self.pull_count, suffix)?;
+        }
+
+        Ok(())
+    }
+}
+
+fn remote_divergence(repository: &mut Repository) -> impl Display {
+    let mut result = RemoteDivergence::default();
+
+    let head = repository.head().unwrap();
+    if head.is_branch() {
+        let current_branch = repository
+            .find_branch(head.shorthand().unwrap(), BranchType::Local)
+            .unwrap();
+        if let Ok(remote) = current_branch.upstream() {
+            let mut revwalk = repository.revwalk().unwrap();
+
+            let head = head.name().unwrap();
+            let remote = remote.name().unwrap().unwrap();
+
+            revwalk
+                .push_range(&format!("{}..{}", remote, head))
+                .unwrap();
+            result.push_count = revwalk.count();
+
+            let mut revwalk = repository.revwalk().unwrap();
+            revwalk
+                .push_range(&format!("{}..{}", head, remote))
+                .unwrap();
+            result.pull_count = revwalk.count();
+        }
+    }
+
+    result
+}
+
 fn main() {
     if let Ok(mut repository) = Repository::discover(".") {
         let stash = stash_height(&mut repository);
+        let remote = remote_divergence(&mut repository);
         let head = repository.head().unwrap();
         let statuses = repository.statuses(None).unwrap();
         print!(
-            "({} {}@{}{}{}",
+            "({} {}@{}{}{}{}",
             Fixed(160).bold().paint("Git"),
             branch(&head),
             commit(&head),
             count_statuses(statuses),
-            stash
+            stash,
+            remote,
         );
     }
 }

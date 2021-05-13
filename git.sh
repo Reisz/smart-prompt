@@ -31,25 +31,6 @@ smart_prompt_git() {
         # Manage timeout to update remotes, prints a symbol when updating
         smart_prompt_git_update "$1"
 
-        # Main remotes
-        local _push _pull
-        if git show-branch "@{u}" >/dev/null 2>&1; then
-            _push=$(git rev-list --count '@{push}..@')
-            _pull=$(git rev-list --count '@..@{u}')
-
-            if [ $((_push + _pull)) -gt 0 ]; then
-                printf ' |'
-
-                if [ "$_push" -gt 0 ]; then
-                    smart_prompt_colored '38;5;220;1' " ▲$_push"
-                fi
-
-                if [ "$_pull" -gt 0 ]; then
-                    smart_prompt_colored '38;5;220;1' " ▼$_pull"
-                fi
-            fi
-        fi
-
 
         # Other remotes
         local _origin _branch
