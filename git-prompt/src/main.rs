@@ -1,23 +1,30 @@
 use std::fmt::{self, Display};
 
 use ansi_term::{Color::Fixed, Style};
-use git2::{BranchType, Reference, Repository, Statuses};
+use git2::{BranchType, Oid, Reference, Repository, Statuses};
 
-fn branch<'a>(head: &'a Reference) -> impl Display + 'a {
-    if head.is_branch() {
-        let name = head.shorthand().unwrap();
-
-        let color = match name {
-            "main" | "master" => 26,
-            "develop" => 99,
-            name if name.starts_with("release") => 34,
-            _ => 214,
-        };
-
-        Fixed(color).bold().paint(name)
-    } else {
-        Fixed(199).bold().paint("<detached>")
+fn branch(repo: &Repository) -> impl Display {
+    if repo.head_detached().unwrap() {
+        return Fixed(199).bold().paint("<detached>");
     }
+
+    // Use the reference here to avoid resolving a branch with no commits
+    // This will happen in a repository created by `git init`
+    let head = repo.find_reference("HEAD").unwrap();
+    let name = head
+        .symbolic_target()
+        .unwrap()
+        .strip_prefix("refs/heads/")
+        .unwrap();
+
+    let color = match name {
+        "main" | "master" => 26,
+        "develop" => 99,
+        name if name.starts_with("release") => 34,
+        _ => 214,
+    };
+
+    Fixed(color).bold().paint(name.to_owned())
 }
 
 #[derive(Debug, Default)]
@@ -78,10 +85,25 @@ fn count_statuses(statuses: Statuses) -> StatusCounts {
     result
 }
 
-fn commit<'a>(head: &'a Reference) -> impl Display + 'a {
-    Fixed(242)
-        .bold()
-        .paint(format!("{:.7}", head.target().unwrap()))
+struct Commit(Option<Oid>);
+
+impl Display for Commit {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        if let Some(oid) = self.0 {
+            let style = Fixed(242).bold();
+
+            let prefix = style.prefix();
+            let suffix = style.suffix();
+
+            write!(f, "@{}{:.7}{}", prefix, oid, suffix)?;
+        }
+
+        Ok(())
+    }
+}
+
+fn commit(head: &Option<Reference>) -> Commit {
+    Commit(head.as_ref().and_then(|h| h.target()))
 }
 
 struct StashHeight(usize);
@@ -139,27 +161,28 @@ impl Display for RemoteDivergence {
 fn remote_divergence(repository: &mut Repository) -> impl Display {
     let mut result = RemoteDivergence::default();
 
-    let head = repository.head().unwrap();
-    if head.is_branch() {
-        let current_branch = repository
-            .find_branch(head.shorthand().unwrap(), BranchType::Local)
-            .unwrap();
-        if let Ok(remote) = current_branch.upstream() {
-            let mut revwalk = repository.revwalk().unwrap();
-
-            let head = head.name().unwrap();
-            let remote = remote.name().unwrap().unwrap();
-
-            revwalk
-                .push_range(&format!("{}..{}", remote, head))
+    if let Ok(head) = repository.head() {
+        if head.is_branch() {
+            let current_branch = repository
+                .find_branch(head.shorthand().unwrap(), BranchType::Local)
                 .unwrap();
-            result.push_count = revwalk.count();
+            if let Ok(remote) = current_branch.upstream() {
+                let mut revwalk = repository.revwalk().unwrap();
 
-            let mut revwalk = repository.revwalk().unwrap();
-            revwalk
-                .push_range(&format!("{}..{}", head, remote))
-                .unwrap();
-            result.pull_count = revwalk.count();
+                let head = head.name().unwrap();
+                let remote = remote.name().unwrap().unwrap();
+
+                revwalk
+                    .push_range(&format!("{}..{}", remote, head))
+                    .unwrap();
+                result.push_count = revwalk.count();
+
+                let mut revwalk = repository.revwalk().unwrap();
+                revwalk
+                    .push_range(&format!("{}..{}", head, remote))
+                    .unwrap();
+                result.pull_count = revwalk.count();
+            }
         }
     }
 
@@ -169,14 +192,14 @@ fn remote_divergence(repository: &mut Repository) -> impl Display {
 fn main() {
     if let Ok(mut repository) = Repository::discover(".") {
         let stash = stash_height(&mut repository);
+        let branch = branch(&repository);
         let remote = remote_divergence(&mut repository);
-        let head = repository.head().unwrap();
         let statuses = repository.statuses(None).unwrap();
         print!(
-            "({} {}@{}{}{}{}",
+            "({} {}{}{}{}{}",
             Fixed(160).bold().paint("Git"),
-            branch(&head),
-            commit(&head),
+            branch,
+            commit(&repository.head().ok()),
             count_statuses(statuses),
             stash,
             remote,
