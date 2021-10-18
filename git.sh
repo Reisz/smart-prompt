@@ -1,27 +1,27 @@
 #!/bin/bash
 smart_prompt_git_update() {
-    local _basedir _last_update _current_update
-    _basedir=$(git rev-parse --show-toplevel)
+    local _gitdir _last_update _current_update
+    _gitdir=$(git rev-parse --git-dir)
 
     # store last update in .git/.update_timer
-    if [ ! -f "$_basedir/.git/.smart_prompt_update_timer" ]; then
+    if [ ! -f "$_gitdir/.smart_prompt_update_timer" ]; then
         _last_update=0
     else
-        _last_update=$(cat "$_basedir/.git/.smart_prompt_update_timer")
+        _last_update=$(cat "$_gitdir/.smart_prompt_update_timer")
     fi
 
     _current_update=$(date +%s)
     if [ $((_current_update - _last_update)) -gt "$1" ]; then
-        touch "$_basedir/.git/.smart_prompt_updating"
+        touch "$_gitdir/.smart_prompt_updating"
         {
             git remote update
-            rm "$_basedir/.git/.smart_prompt_updating"
+            rm "$_gitdir/.smart_prompt_updating"
         } >/dev/null 2>&1 &
-        echo "$_current_update" > "$_basedir/.git/.smart_prompt_update_timer"
+        echo "$_current_update" > "$_gitdir/.smart_prompt_update_timer"
     fi
 
 
-    if [ -f "$_basedir/.git/.smart_prompt_updating" ]; then
+    if [ -f "$_gitdir/.smart_prompt_updating" ]; then
         smart_prompt_swap ' ↺' ' ↕'
     fi
 }
