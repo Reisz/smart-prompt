@@ -2,10 +2,9 @@
 name = "git-prompt"
 version = "0.1.0"
 authors = ["Reisz <Reisz@users.noreply.github.com>"]
-edition = "2018"
+edition = "2021"
 
 [dependencies]
 git2 = "0.13"
 ansi_term = "0.12"
 
-# a
