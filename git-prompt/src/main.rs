@@ -14,6 +14,7 @@ fn branch(repo: &Repository) -> impl Display {
     let name = head
         .symbolic_target()
         .unwrap()
+        .expect("HEAD is not detached")
         .strip_prefix("refs/heads/")
         .unwrap();
 
